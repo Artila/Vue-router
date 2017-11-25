@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>滚动行为</title>
+	</head>
+	<body>
+    <div id="app">
+      <h1>Scroll Behavior</h1>
+      <ul>
+        <li>
+        	<router-link to="/">/</router-link>
+        </li>
+        <li>
+        	<router-link to="/foo">/foo</router-link>
+        </li>
+        <li>
+        	<router-link to="/bar">/bar</router-link>
+        </li>
+        <li>
+        	<router-link to="/bar#anchor">/bar#anchor</router-link>
+        </li>
+      </ul>
+      <router-view class="view"></router-view>
+    </div>				
+
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+		<script>
+			const Home = { template: '<div>home</div>' };
+			const Foo = { template: '<div>foo</div>' };
+			const Bar = {
+				template: `
+					<div>
+						bar
+						<div style="height: 500px;"></div>
+						<p id="anchor">Anchor</p>
+					</div>
+				`
+			};
+			// 注意: 这个功能只在 HTML5 history 模式下可用。
+			// return false 停止滚动
+			// return 期望滚动到哪个的位置
+			// 第三个参数 savedPosition 当且仅当 popstate 导航 (通过浏览器的 前进/后退 按钮触发) 时才可用。
+			const scrollBehavior = (to, from, savedPosition) => {
+				
+				if (savedPosition) {
+					return savedPosition;
+				} else {
+					const position = {};
+					// 滚动到锚点
+					if (to.hash) {
+						position.selector = to.hash;
+					}
+					// 滚动到顶部
+					if (to.matched.some(m => m.meta.scrollToTop)) {
+						position.x = 0;
+						position.y = 0;
+					}
+					// 如果返回的是  falsy 或者空对象，会保持原来的位置不动
+					return position;
+				}
+			};
+			
+			const router = new VueRouter({
+				scrollBehavior,
+				routes: [
+					{ path: '/', component: Home, meta: { scrollToTop: true } },
+					{ path: '/foo', component: Foo},
+					{ path: '/bar', component: Bar, meta: { scrollToTop: true } }
+				]
+			});
+			
+			const app = new Vue({ router }).$mount('#app');
+		</script>
+	</body>
+</html>
