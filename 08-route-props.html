@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>路由组件传参props</title>
+	</head>
+	<body>
+		<div id="app">
+      <h1>Route props</h1>
+      <ul>
+        <li>
+        	<router-link to="/">
+        		/
+        	</router-link>
+        </li>
+        <li>
+        	<router-link to="/hello/you">
+        		/hello/you
+        	</router-link>
+        </li>
+        <li>
+        	<router-link to="/static">
+        		/static
+        	</router-link>
+        </li>
+        <li>
+        	<router-link to="/dynamic/1">
+        		/dynamic/1
+        	</router-link>
+        </li>
+        <li>
+        	<router-link to="/attrs">
+        		/attrs
+        	</router-link>
+        </li>
+      </ul>
+      <router-view class="view" foo="123"></router-view>
+    </div>
+
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+		<script type="text/javascript">
+			function dynamicPropsFn(route) {
+				const now = new Date();
+				return {
+					name: (now.getFullYear() + parseInt(route.params.years)) + '!'
+				};
+			}
+			
+			const Hello = {
+				props: {
+			    name: {
+			      type: String,
+			      default: 'Vue!'
+			    }
+			  },
+				template: `
+					<div>
+				    <h2 class="hello">Hello {{name}}</h2>
+  				</div>
+				`
+			};
+
+			const router = new VueRouter({
+				routes: [
+					{ path: '/', component: Hello },
+					// 布尔模式：如果props被设置为true，route.params将会被设置为组件属性。
+					{ path: '/hello/:name', component: Hello, props: true },
+					// 对象模式：如果props是一个对象，它会被按原样设置为组件属性。当props是静态的时候有用。
+					{ path: '/static', component: Hello, props: { name: 'world'} },
+					// 函数模式：创建一个函数返回props。便可以将参数转换成另一种类型，将静态值与基于路由的值结合等等。
+					{ path: '/dynamic/:years', component: Hello, props: dynamicPropsFn },
+					{ path: '/attrs', component: Hello, props: { name: 'attrs'} },
+				]
+			});
+			
+			const app = new Vue({ router }).$mount('#app');
+		</script>
+	</body>
+</html>
